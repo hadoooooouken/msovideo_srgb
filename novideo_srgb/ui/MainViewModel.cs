@@ -6,8 +6,6 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using Microsoft.Win32;
-using NvAPIWrapper.Display;
-
 namespace novideo_srgb
 {
     public class MainViewModel
@@ -76,10 +74,9 @@ namespace novideo_srgb
             var hdrPaths = DisplayConfigManager.GetHdrDisplayPaths();
 
             var number = 1;
-            foreach (var display in Display.GetDisplays())
+            foreach (var display in WindowsDisplayAPI.Display.GetDisplays())
             {
-                var displays = WindowsDisplayAPI.Display.GetDisplays();
-                var path = displays.First(x => x.DisplayName == display.Name).DevicePath;
+                var path = display.DevicePath;
 
                 var hdrActive = hdrPaths.Contains(path);
 

@@ -8,9 +8,7 @@ using EDIDParser;
 using EDIDParser.Descriptors;
 using EDIDParser.Enums;
 using Microsoft.Win32;
-using NvAPIWrapper.Display;
-using NvAPIWrapper.GPU;
-using NvAPIWrapper.Native.Display;
+using WindowsDisplayAPI;
 
 namespace novideo_srgb
 {
@@ -18,7 +16,6 @@ namespace novideo_srgb
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private readonly GPUOutput _output;
         private bool _clamped;
 
         private MainViewModel _viewModel;
@@ -27,7 +24,6 @@ namespace novideo_srgb
         {
             _viewModel = viewModel;
             Number = number;
-            _output = display.Output;
 
             Edid = GetEDID(path, display);
 
@@ -38,14 +34,21 @@ namespace novideo_srgb
             ClampSdr = clampSdr;
             HdrActive = hdrActive;
 
-            var coords = Edid.DisplayParameters.ChromaticityCoordinates;
-            EdidColorSpace = new Colorimetry.ColorSpace
+            if (Edid != null)
             {
-                Red = new Colorimetry.Point { X = Math.Round(coords.RedX, 3), Y = Math.Round(coords.RedY, 3) },
-                Green = new Colorimetry.Point { X = Math.Round(coords.GreenX, 3), Y = Math.Round(coords.GreenY, 3) },
-                Blue = new Colorimetry.Point { X = Math.Round(coords.BlueX, 3), Y = Math.Round(coords.BlueY, 3) },
-                White = Colorimetry.D65
-            };
+                var coords = Edid.DisplayParameters.ChromaticityCoordinates;
+                EdidColorSpace = new Colorimetry.ColorSpace
+                {
+                    Red = new Colorimetry.Point { X = Math.Round(coords.RedX, 3), Y = Math.Round(coords.RedY, 3) },
+                    Green = new Colorimetry.Point { X = Math.Round(coords.GreenX, 3), Y = Math.Round(coords.GreenY, 3) },
+                    Blue = new Colorimetry.Point { X = Math.Round(coords.BlueX, 3), Y = Math.Round(coords.BlueY, 3) },
+                    White = Colorimetry.D65
+                };
+            }
+            else
+            {
+                EdidColorSpace = Colorimetry.sRGB;
+            }
 
             ProfilePath = "";
             CustomGamma = 2.2;
@@ -62,7 +65,7 @@ namespace novideo_srgb
             }
             catch
             {
-                return new EDID(display.Output.PhysicalGPU.ReadEDIDData(display.Output));
+                return null;
             }
         }
         public MonitorData(MainViewModel viewModel, int number, Display display, string path, bool hdrActive, bool clampSdr, bool useIcc, string profilePath,
@@ -190,8 +193,6 @@ namespace novideo_srgb
         }
 
         public bool CanClamp => !HdrActive && (UseEdid && !EdidColorSpace.Equals(TargetColorSpace) || UseIcc && ProfilePath != "");
-
-        public string GPU => _output.PhysicalGPU.FullName;
 
         public bool UseEdid
         {
