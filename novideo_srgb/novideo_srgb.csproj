@@ -95,43 +95,43 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AboutWindow.xaml.cs">
+    <Compile Include="ui\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DisplayConfigManager.cs" />
-    <Compile Include="LstarEOTF.cs" />
-    <Compile Include="Lut16.cs" />
-    <Compile Include="DoubleToneCurve.cs" />
-    <Compile Include="RangeRule.cs" />
-    <Compile Include="GammaToneCurve.cs" />
-    <Compile Include="ICCBinaryReader.cs" />
-    <Compile Include="ICCProfileException.cs" />
-    <Compile Include="SrgbEOTF.cs" />
-    <Compile Include="ToneCurve.cs" />
-    <Page Include="AboutWindow.xaml" />
-    <Page Include="MainWindow.xaml">
+    <Compile Include="tools\DisplayConfigManager.cs" />
+    <Compile Include="colorimetry\LstarEOTF.cs" />
+    <Compile Include="colorimetry\Lut16.cs" />
+    <Compile Include="colorimetry\DoubleToneCurve.cs" />
+    <Compile Include="colorimetry\RangeRule.cs" />
+    <Compile Include="colorimetry\GammaToneCurve.cs" />
+    <Compile Include="icc\ICCBinaryReader.cs" />
+    <Compile Include="icc\ICCProfileException.cs" />
+    <Compile Include="colorimetry\SrgbEOTF.cs" />
+    <Compile Include="colorimetry\ToneCurve.cs" />
+    <Page Include="ui\AboutWindow.xaml" />
+    <Page Include="ui\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="AdvancedViewModel.cs" />
+    <Compile Include="ui\AdvancedViewModel.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Colorimetry.cs" />
-    <Compile Include="LutToneCurve.cs" />
-    <Compile Include="MainViewModel.cs" />
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="colorimetry\Colorimetry.cs" />
+    <Compile Include="colorimetry\LutToneCurve.cs" />
+    <Compile Include="ui\MainViewModel.cs" />
+    <Compile Include="ui\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="AdvancedWindow.xaml" />
+    <Page Include="ui\AdvancedWindow.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Matrix.cs" />
-    <Compile Include="ICCMatrixProfile.cs" />
-    <Compile Include="MonitorData.cs" />
-    <Compile Include="AdvancedWindow.xaml.cs">
+    <Compile Include="colorimetry\Matrix.cs" />
+    <Compile Include="icc\ICCMatrixProfile.cs" />
+    <Compile Include="tools\MonitorData.cs" />
+    <Compile Include="ui\AdvancedWindow.xaml.cs">
       <DependentUpon>AdvancedWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -164,11 +164,6 @@
   <ItemGroup>
     <Resource Include="icon.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="colorimetry\" />
-    <Folder Include="icc\" />
-    <Folder Include="tools\" />
-    <Folder Include="ui\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
