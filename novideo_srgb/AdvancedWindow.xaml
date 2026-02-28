@@ -52,7 +52,7 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0">Red </Label>
+                            <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0">Red</Label>
                             <TextBox IsEnabled="False"
                                      Text="{Binding Coords.RedX, Mode=OneWay, StringFormat={}{0:#,0.000}}"
                                      IsReadOnly="True"
@@ -65,7 +65,7 @@
                                      Grid.Row="0" Grid.Column="3"
                                      VerticalAlignment="Center" />
                             <Label Grid.Row="0" Grid.Column="4">y</Label>
-                            <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0">Green </Label>
+                            <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0">Green</Label>
                             <TextBox IsEnabled="False"
                                      Text="{Binding Coords.GreenX, Mode=OneWay, StringFormat={}{0:#,0.000}}"
                                      IsReadOnly="True"
@@ -78,7 +78,7 @@
                                      Grid.Row="1" Grid.Column="3"
                                      VerticalAlignment="Center" />
                             <Label Grid.Row="1" Grid.Column="4">y</Label>
-                            <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0">Blue </Label>
+                            <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0">Blue</Label>
                             <TextBox IsEnabled="False"
                                      Text="{Binding Coords.BlueX, Mode=OneWay, StringFormat={}{0:#,0.000}}"
                                      IsReadOnly="True"
@@ -152,50 +152,9 @@
                             </TextBox>
                             <TextBlock VerticalAlignment="Center" Margin="2,0,0,0">% black output offset</TextBlock>
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                            <CheckBox IsChecked="{Binding DisableOptimization}" VerticalAlignment="Center">Disable 8-bit color optimization</CheckBox>
-                        </StackPanel>
                     </StackPanel>
                 </RadioButton>
             </StackPanel>
-        </GroupBox>
-        <GroupBox Header="Dithering" Padding="6">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <Label HorizontalAlignment="Right">State</Label>
-                <ComboBox SelectedIndex="{Binding DitherState}" Name="DitherState" VerticalAlignment="Center"
-                          Grid.Row="0" Grid.Column="1">
-                    <ComboBoxItem>Default</ComboBoxItem>
-                    <ComboBoxItem>Enable</ComboBoxItem>
-                    <ComboBoxItem>Disable</ComboBoxItem>
-                </ComboBox>
-                <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0">Mode</Label>
-                <ComboBox IsEnabled="{Binding CustomDither}" SelectedIndex="{Binding DitherMode}" Name="DitherMode"
-                          VerticalAlignment="Center" Grid.Row="1"
-                          Grid.Column="1">
-                    <ComboBoxItem>SpatialDynamic</ComboBoxItem>
-                    <ComboBoxItem>SpatialStatic</ComboBoxItem>
-                    <ComboBoxItem>SpatialDynamic2x2</ComboBoxItem>
-                    <ComboBoxItem>SpatialStatic2x2</ComboBoxItem>
-                    <ComboBoxItem>Temporal</ComboBoxItem>
-                </ComboBox>
-                <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0">Bits</Label>
-                <ComboBox IsEnabled="{Binding CustomDither}" SelectedIndex="{Binding DitherBits}" Name="DitherBits"
-                          VerticalAlignment="Center" Grid.Row="2"
-                          Grid.Column="1">
-                    <ComboBoxItem>6 bit</ComboBoxItem>
-                    <ComboBoxItem>8 bit</ComboBoxItem>
-                    <ComboBoxItem>10 bit</ComboBoxItem>
-                </ComboBox>
-            </Grid>
         </GroupBox>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,6,0,0">
             <Button Width="75" Click="OK_Click" Margin="0,0,6,0" IsDefault="True">OK</Button>

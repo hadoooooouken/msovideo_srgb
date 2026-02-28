@@ -131,7 +131,6 @@
     <Compile Include="Matrix.cs" />
     <Compile Include="ICCMatrixProfile.cs" />
     <Compile Include="MonitorData.cs" />
-    <Compile Include="Novideo.cs" />
     <Compile Include="AdvancedWindow.xaml.cs">
       <DependentUpon>AdvancedWindow.xaml</DependentUpon>
     </Compile>
@@ -164,6 +163,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="colorimetry\" />
+    <Folder Include="icc\" />
+    <Folder Include="tools\" />
+    <Folder Include="ui\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

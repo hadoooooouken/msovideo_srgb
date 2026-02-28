@@ -7,6 +7,7 @@ using System.Windows;
 using EDIDParser;
 using EDIDParser.Descriptors;
 using EDIDParser.Enums;
+using Microsoft.Win32;
 using NvAPIWrapper.Display;
 using NvAPIWrapper.GPU;
 using NvAPIWrapper.Native.Display;
@@ -19,8 +20,6 @@ namespace novideo_srgb
 
         private readonly GPUOutput _output;
         private bool _clamped;
-        private int _bitDepth;
-        private Novideo.DitherControl _dither;
 
         private MainViewModel _viewModel;
 
@@ -30,26 +29,7 @@ namespace novideo_srgb
             Number = number;
             _output = display.Output;
 
-            _bitDepth = 0;
-            try
-            {
-                var bitDepth = display.DisplayDevice.CurrentColorData.ColorDepth;
-                if (bitDepth == ColorDataDepth.BPC6)
-                    _bitDepth = 6;
-                else if (bitDepth == ColorDataDepth.BPC8)
-                    _bitDepth = 8;
-                else if (bitDepth == ColorDataDepth.BPC10)
-                    _bitDepth = 10;
-                else if (bitDepth == ColorDataDepth.BPC12)
-                    _bitDepth = 12;
-                else if (bitDepth == ColorDataDepth.BPC16)
-                    _bitDepth = 16;
-            }
-            catch (Exception)
-            {
-            }
-
-            Edid = Novideo.GetEDID(path, display);
+            Edid = GetEDID(path, display);
 
             Name = Edid.Descriptors.OfType<StringDescriptor>()
                 .FirstOrDefault(x => x.Type == StringDescriptorType.MonitorName)?.Value ?? "<no name>";
@@ -67,14 +47,24 @@ namespace novideo_srgb
                 White = Colorimetry.D65
             };
 
-            _dither = Novideo.GetDitherControl(_output);
-            _clamped = Novideo.IsColorSpaceConversionActive(_output);
-
             ProfilePath = "";
             CustomGamma = 2.2;
             CustomPercentage = 100;
         }
 
+        public static EDID GetEDID(string path, Display display)
+        {
+            try
+            {
+                var registryPath = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Enum\\DISPLAY\\";
+                registryPath += string.Join("\\", path.Split('#').Skip(1).Take(2));
+                return new EDID((byte[])Registry.GetValue(registryPath + "\\Device Parameters", "EDID", null));
+            }
+            catch
+            {
+                return new EDID(display.Output.PhysicalGPU.ReadEDIDData(display.Output));
+            }
+        }
         public MonitorData(MainViewModel viewModel, int number, Display display, string path, bool hdrActive, bool clampSdr, bool useIcc, string profilePath,
             bool calibrateGamma,
             int selectedGamma, double customGamma, double customPercentage, int target, bool disableOptimization) :
@@ -101,14 +91,15 @@ namespace novideo_srgb
         {
             if (_clamped)
             {
-                Novideo.DisableColorSpaceConversion(_output);
+                //Novideo.DisableColorSpaceConversion(_output);
             }
 
             if (!doClamp) return;
 
             if (_clamped) Thread.Sleep(100);
             if (UseEdid)
-                Novideo.SetColorSpaceConversion(_output, Colorimetry.RGBToRGB(TargetColorSpace, EdidColorSpace));
+                ;
+                //Novideo.SetColorSpaceConversion(_output, Colorimetry.RGBToRGB(TargetColorSpace, EdidColorSpace));
             else if (UseIcc)
             {
                 var profile = ICCMatrixProfile.FromFile(ProfilePath);
@@ -144,11 +135,11 @@ namespace novideo_srgb
                             throw new NotSupportedException("Unsupported gamma type " + SelectedGamma);
                     }
 
-                    Novideo.SetColorSpaceConversion(_output, profile, TargetColorSpace, gamma, DisableOptimization);
+                    //Novideo.SetColorSpaceConversion(_output, profile, TargetColorSpace, gamma, DisableOptimization);
                 }
                 else
                 {
-                    Novideo.SetColorSpaceConversion(_output, profile, TargetColorSpace);
+                    //Novideo.SetColorSpaceConversion(_output, profile, TargetColorSpace);
                 }
             }
         }
@@ -156,7 +147,7 @@ namespace novideo_srgb
         private void HandleClampException(Exception e)
         {
             MessageBox.Show(e.Message);
-            _clamped = Novideo.IsColorSpaceConversionActive(_output);
+            //_clamped = Novideo.IsColorSpaceConversionActive(_output);
             ClampSdr = _clamped;
             _viewModel.SaveConfig();
             OnPropertyChanged(nameof(Clamped));
@@ -228,49 +219,6 @@ namespace novideo_srgb
         public Colorimetry.ColorSpace EdidColorSpace { get; }
 
         private Colorimetry.ColorSpace TargetColorSpace => Colorimetry.ColorSpaces[Target];
-
-        public Novideo.DitherControl DitherControl => _dither;
-
-        public string DitherString
-        {
-            get
-            {
-                string[] types =
-                {
-                    "SpatialDynamic",
-                    "SpatialStatic",
-                    "SpatialDynamic2x2",
-                    "SpatialStatic2x2",
-                    "Temporal"
-                };
-                if (_dither.state == 2)
-                {
-                    return "Disabled (forced)";
-                }
-                if (_dither.state == 0 & _dither.bits == 0 && _dither.mode == 0)
-                {
-                    return "Disabled (default)";
-                }
-                var bits = (6 + 2 * _dither.bits).ToString();
-                return bits + " bit " + types[_dither.mode] + " (" + (_dither.state == 0 ? "default" : "forced") + ")";
-            }
-        }
-
-        public int BitDepth => _bitDepth;
-
-        public void ApplyDither(int state, int bits, int mode)
-        {
-            try
-            {
-                Novideo.SetDitherControl(_output, state, bits, mode);
-                _dither = Novideo.GetDitherControl(_output);
-                OnPropertyChanged(nameof(DitherString));
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.Message);
-            }
-        }
 
         private void OnPropertyChanged([CallerMemberName] string name = null)
         {

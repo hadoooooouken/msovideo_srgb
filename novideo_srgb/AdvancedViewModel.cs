@@ -22,16 +22,12 @@ namespace novideo_srgb
         private double _customPercentage;
         private bool _disableOptimization;
 
-        private int _ditherState;
-        private int _ditherMode;
-        private int _ditherBits;
-
         public AdvancedViewModel()
         {
             throw new NotSupportedException();
         }
 
-        public AdvancedViewModel(MonitorData monitor, Novideo.DitherControl dither)
+        public AdvancedViewModel(MonitorData monitor)
         {
             _monitor = monitor;
 
@@ -43,10 +39,6 @@ namespace novideo_srgb
             _customGamma = monitor.CustomGamma;
             _customPercentage = monitor.CustomPercentage;
             _disableOptimization = monitor.DisableOptimization;
-
-            _ditherBits = dither.bits;
-            _ditherMode = dither.mode;
-            _ditherState = dither.state;
         }
 
         public void ApplyChanges()
@@ -188,49 +180,6 @@ namespace novideo_srgb
         }
 
         public bool ChangedCalibration { get; set; }
-
-        public int DitherState
-        {
-            set
-            {
-                if (value == _ditherState) return;
-                _ditherState = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(CustomDither));
-                OnPropertyChanged(nameof(DitherMode));
-                OnPropertyChanged(nameof(DitherBits));
-                ChangedDither = true;
-            }
-            get => _ditherState;
-        }
-
-        public int DitherMode
-        {
-            set
-            {
-                if (value == _ditherMode) return;
-                _ditherMode = value;
-                OnPropertyChanged();
-                ChangedDither = true;
-            }
-            get => _ditherState == 0 ? -1 : _ditherMode;
-        }
-
-        public int DitherBits
-        {
-            set
-            {
-                if (value == _ditherBits) return;
-                _ditherBits = value;
-                OnPropertyChanged();
-                ChangedDither = true;
-            }
-            get => _ditherState == 0 ? -1 : _ditherBits;
-        }
-
-        public bool CustomDither => DitherState == 1;
-
-        public bool ChangedDither { get; set; }
 
         private void OnPropertyChanged([CallerMemberName] string name = null)
         {

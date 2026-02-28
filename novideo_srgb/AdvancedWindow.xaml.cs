@@ -9,26 +9,9 @@ namespace novideo_srgb
 
         public AdvancedWindow(MonitorData monitor)
         {
-            var dither = monitor.DitherControl;
-            var bitDepth = monitor.BitDepth;
-            if (bitDepth != 0 && dither.state == 0 && dither.mode == 0 && dither.bits == 0)
-            {
-                dither.mode = 4;
-                dither.bits = bitDepth == 8 ? 1 : 2;
-            }
-            _viewModel = new AdvancedViewModel(monitor, dither);
+            _viewModel = new AdvancedViewModel(monitor);
             DataContext = _viewModel;
             InitializeComponent();
-
-            for (var i = 0; i < 5; i++)
-            {
-                ((ComboBoxItem)DitherMode.Items[i]).IsEnabled = ((dither.modeCaps >> i) & 1) == 1;
-            }
-
-            for (var i = 0; i < 3; i++)
-            {
-                ((ComboBoxItem)DitherBits.Items[i]).IsEnabled = ((dither.bitsCaps >> i) & 1) == 1;
-            }
         }
 
         private static string BrowseProfiles()
@@ -59,6 +42,5 @@ namespace novideo_srgb
         }
 
         public bool ChangedCalibration => _viewModel.ChangedCalibration;
-        public bool ChangedDither => _viewModel.ChangedDither;
     }
 }

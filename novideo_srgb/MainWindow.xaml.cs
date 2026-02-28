@@ -80,12 +80,6 @@ namespace novideo_srgb
                 _viewModel.SaveConfig();
                 monitor?.ReapplyClamp();
             }
-
-            if (window.ChangedDither)
-            {
-                monitor?.ApplyDither(window.DitherState.SelectedIndex, Math.Max(window.DitherBits.SelectedIndex, 0),
-                    Math.Max(window.DitherMode.SelectedIndex, 0));
-            }
         }
 
         private void ReapplyButton_Click(object sender, RoutedEventArgs e)
