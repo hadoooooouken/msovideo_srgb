@@ -67,7 +67,7 @@ namespace novideo_srgb
         }
         public MonitorData(MainViewModel viewModel, int number, Display display, string path, bool hdrActive, bool clampSdr, bool useIcc, string profilePath,
             bool calibrateGamma,
-            int selectedGamma, double customGamma, double customPercentage, int target, bool disableOptimization) :
+            int selectedGamma, double customGamma, double customPercentage, int target) :
             this(viewModel, number, display, path, hdrActive, clampSdr)
         {
             UseIcc = useIcc;
@@ -77,7 +77,6 @@ namespace novideo_srgb
             CustomGamma = customGamma;
             CustomPercentage = customPercentage;
             Target = target;
-            DisableOptimization = disableOptimization;
         }
 
         public int Number { get; }
@@ -135,7 +134,7 @@ namespace novideo_srgb
                             throw new NotSupportedException("Unsupported gamma type " + SelectedGamma);
                     }
 
-                    //Novideo.SetColorSpaceConversion(_output, profile, TargetColorSpace, gamma, DisableOptimization);
+                    //Novideo.SetColorSpaceConversion(_output, profile, TargetColorSpace, gamma);
                 }
                 else
                 {
@@ -211,8 +210,6 @@ namespace novideo_srgb
         public double CustomGamma { set; get; }
 
         public double CustomPercentage { set; get; }
-
-        public bool DisableOptimization { set; get; }
 
         public int Target { set; get; }
 
