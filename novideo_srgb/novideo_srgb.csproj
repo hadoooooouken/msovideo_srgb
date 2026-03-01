@@ -95,6 +95,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="icc\ICCProfileGenerator.cs" />
+    <Compile Include="tools\ColorProfileFactory.cs" />
+    <Compile Include="tools\DisplayColorProfileManager.cs" />
     <Compile Include="ui\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>

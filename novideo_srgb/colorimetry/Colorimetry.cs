@@ -116,6 +116,13 @@ namespace novideo_srgb
             return Mprime * Matrix.FromDiagonal(Mprime.Inverse() * whiteXYZ);
         }
 
+        public static Matrix RGBToXYZ(Point point)
+        {
+            var valueXYZ = Matrix.FromValues(new[,]   { { point.X / point.Y }, { 1 }, { (1 - point.X - point.Y) / point.Y } });
+
+            return valueXYZ;
+        }
+
         public static Matrix XYZToRGB(ColorSpace colorSpace)
         {
             return RGBToXYZ(colorSpace).Inverse();

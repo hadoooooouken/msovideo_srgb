@@ -101,16 +101,19 @@ namespace novideo_srgb
 
         private void UpdateClamp(bool doClamp)
         {
-            if (_clamped)
+            if (!CanClamp) return;
+
+            if (_clamped && DisplayColorProfileManager.GetProfile(Display).Equals(MHCProfileName))
             {
-                //Novideo.DisableColorSpaceConversion(_output);
+                DisplayColorProfileManager.RemoveAssociation(Display, MHCProfileName);
             }
 
             if (!doClamp) return;
 
+            ICCProfileGenerator profileGenerator = new ICCProfileGenerator();
+
             if (UseEdid)
-                ;
-                //Novideo.SetColorSpaceConversion(_output, Colorimetry.RGBToRGB(TargetColorSpace, EdidColorSpace));
+                ColorProfileFactory.CreateProfile(MHCProfileName, Resolution, KeepWhite, EdidColorSpace, TargetColorSpace, EdidWhite, EdidGamma);
             else if (UseIcc)
             {
                 var profile = ICCMatrixProfile.FromFile(ProfilePath);
@@ -119,42 +122,51 @@ namespace novideo_srgb
                     var trcBlack = profile.trcBlack;
                     var tagBlack = profile.tagBlack;
                     
+                    ToneCurve curve;
                     ToneCurve gamma;
 
                     switch (SelectedGamma)
                     {
                         case 0:
+                            curve = new SrgbEOTF(0);
                             gamma = new SrgbEOTF(trcBlack);
                             break;
                         case 1:
+                            curve = new GammaToneCurve(2.4, 0, tagBlack, 0);
                             gamma = new GammaToneCurve(2.4, trcBlack, tagBlack, 0);
                             break;
                         case 2:
+                            curve = new GammaToneCurve(CustomGamma, 0, tagBlack, CustomPercentage / 100);
                             gamma = new GammaToneCurve(CustomGamma, trcBlack, tagBlack, CustomPercentage / 100);
                             break;
                         case 3:
+                            curve = new GammaToneCurve(CustomGamma, 0, tagBlack, CustomPercentage / 100, true);
                             gamma = new GammaToneCurve(CustomGamma, trcBlack, tagBlack, CustomPercentage / 100, true);
                             break;
                         case 4:
+                            curve = new LstarEOTF(0);
                             gamma = new LstarEOTF(trcBlack);
                             break;
                         default:
                             throw new NotSupportedException("Unsupported gamma type " + SelectedGamma);
                     }
 
-                    //Novideo.SetColorSpaceConversion(_output, profile, TargetColorSpace, gamma);
+                    ColorProfileFactory.CreateProfile(MHCProfileName, Resolution, KeepWhite, profile, TargetColorSpace, curve, gamma);
                 }
                 else
                 {
-                    //Novideo.SetColorSpaceConversion(_output, profile, TargetColorSpace);
+                    ColorProfileFactory.CreateProfile(MHCProfileName, Resolution, KeepWhite, profile, TargetColorSpace, new GammaToneCurve(EdidGamma));
                 }
             }
+
+            DisplayColorProfileManager.AddAssociation(Display, MHCProfileName);
+            DisplayColorProfileManager.SetProfile(Display, MHCProfileName);
         }
 
         private void HandleClampException(Exception e)
         {
             MessageBox.Show(e.Message);
-            //_clamped = Novideo.IsColorSpaceConversionActive(_output);
+            _clamped = DisplayColorProfileManager.GetProfile(Display).Equals(MHCProfileName);
             ClampSdr = _clamped;
             _viewModel.SaveConfig();
             OnPropertyChanged(nameof(Clamped));
