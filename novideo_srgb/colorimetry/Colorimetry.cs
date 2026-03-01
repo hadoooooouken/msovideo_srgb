@@ -183,5 +183,40 @@ namespace novideo_srgb
         {
             return XYZScale(matrix, D50);
         }
+
+        public static Matrix CreateMatrix(ColorSpace origin, ColorSpace target)
+        {
+            return RGBToXYZ(target) * XYZToRGB(origin);
+        }
+
+        private static Matrix Adaptation(Matrix origin, ColorSpace target)
+        {
+            var bradford = Matrix.FromValues(new[,]
+            {
+                { 0.8951, 0.2664, -0.1614 },
+                { -0.7502, 1.7135, 0.0367 },
+                { 0.0389, -0.0685, 1.0296 }
+            });
+
+            var sourceWhite = RGBToXYZ(D65);
+            var targetWhite = D50;
+
+            var sourceCone = bradford * sourceWhite;
+            var targetCone = bradford * targetWhite;
+
+            var scale = Matrix.FromDiagonal(new[]
+            {
+                targetCone[0] / sourceCone[0],
+                targetCone[1] / sourceCone[1],
+                targetCone[2] / sourceCone[2]
+            });
+
+            return bradford.Inverse() * scale * bradford;
+        }
+
+        public static Matrix CreateMatrix(Matrix origin, ColorSpace target)
+        {
+            return RGBToXYZ(target) * origin.Inverse() * Adaptation(origin, target);
+        }
     }
 }

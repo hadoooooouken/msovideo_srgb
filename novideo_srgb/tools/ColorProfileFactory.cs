@@ -47,7 +47,7 @@ namespace novideo_srgb
             AddMatrix(profileGenerator, targetColorSpace);
             AddCurve(profileGenerator, new GammaToneCurve(gamma), resolution);
 
-            var matrix = Colorimetry.RGBToRGB(targetColorSpace, originColorSpace);
+            var matrix = Colorimetry.CreateMatrix(originColorSpace, targetColorSpace);
             double[][] luts = new double[][] { new double[] { 0, 1 }, new double[] { 0, 1 }, new double[] { 0, 1 } };
 
             profileGenerator.AddTag("MHC2", ICCProfileGenerator.MakeMHC2(0, 80, matrix, luts));
@@ -75,7 +75,7 @@ namespace novideo_srgb
             AddMatrix(profileGenerator, targetColorSpace);
             AddCurve(profileGenerator, curve, resolution);
 
-            var matrix = profile.matrix.Inverse() * Colorimetry.RGBToPCSXYZ(targetColorSpace);
+            var matrix = Colorimetry.CreateMatrix(profile.matrix, targetColorSpace);
             double[][] luts;
 
             if (gamma != null)
