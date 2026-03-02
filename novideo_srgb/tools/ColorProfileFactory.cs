@@ -25,7 +25,7 @@ namespace novideo_srgb
 
         private static void AddCurve(ICCProfileGenerator profileGenerator, ToneCurve curve, uint resolution)
         {
-            var tagData = ICCProfileGenerator.MakeCurveTag(curve, 1024);
+            var tagData = ICCProfileGenerator.MakeCurveTag(curve, resolution);
             profileGenerator.AddTag("rTRC", tagData);
             profileGenerator.AddTag("gTRC", tagData);
             profileGenerator.AddTag("bTRC", tagData);

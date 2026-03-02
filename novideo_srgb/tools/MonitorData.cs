@@ -59,7 +59,7 @@ namespace novideo_srgb
             ProfilePath = "";
             CustomGamma = 2.2;
             CustomPercentage = 100;
-            Resolution = 1024;
+            Resolution = 2;
         }
 
         public static EDID GetEDID(string path, Display display)
@@ -77,7 +77,7 @@ namespace novideo_srgb
         }
         public MonitorData(MainViewModel viewModel, int number, Display display, string path, bool hdrActive, bool clampSdr, bool useIcc, string profilePath,
             bool calibrateGamma,
-            int selectedGamma, double customGamma, double customPercentage, int target, bool keepWhite) :
+            int selectedGamma, double customGamma, double customPercentage, int target, bool keepWhite, int resolution) :
             this(viewModel, number, display, path, hdrActive, clampSdr)
         {
             UseIcc = useIcc;
@@ -88,6 +88,7 @@ namespace novideo_srgb
             CustomPercentage = customPercentage;
             Target = target;
             KeepWhite = keepWhite;
+            Resolution = resolution;
         }
 
         public int Number { get; }
@@ -121,7 +122,7 @@ namespace novideo_srgb
             if (!doClamp) return;
 
             if (UseEdid)
-                ColorProfileFactory.CreateProfile(MHCProfileName, Resolution, KeepWhite, EdidColorSpace, TargetColorSpace, EdidWhite, EdidGamma);
+                ColorProfileFactory.CreateProfile(MHCProfileName, CurveResolution, KeepWhite, EdidColorSpace, TargetColorSpace, EdidWhite, EdidGamma);
             else if (UseIcc)
             {
                 var profile = ICCMatrixProfile.FromFile(ProfilePath);
@@ -159,11 +160,11 @@ namespace novideo_srgb
                             throw new NotSupportedException("Unsupported gamma type " + SelectedGamma);
                     }
 
-                    ColorProfileFactory.CreateProfile(MHCProfileName, Resolution, KeepWhite, profile, TargetColorSpace, curve, gamma);
+                    ColorProfileFactory.CreateProfile(MHCProfileName, CurveResolution, KeepWhite, profile, TargetColorSpace, curve, gamma);
                 }
                 else
                 {
-                    ColorProfileFactory.CreateProfile(MHCProfileName, Resolution, KeepWhite, profile, TargetColorSpace, new GammaToneCurve(EdidGamma));
+                    ColorProfileFactory.CreateProfile(MHCProfileName, CurveResolution, KeepWhite, profile, TargetColorSpace, new GammaToneCurve(EdidGamma));
                 }
             }
 
@@ -243,13 +244,16 @@ namespace novideo_srgb
 
         public bool KeepWhite { set; get; }
 
-        public uint Resolution { set; get; }
+        public int Resolution { set; get; }
 
         public Colorimetry.ColorSpace EdidColorSpace { get; }
         public Colorimetry.Point EdidWhite { get; }
         public double EdidGamma { get; }
 
         private Colorimetry.ColorSpace TargetColorSpace => Colorimetry.ColorSpaces[Target];
+
+        private uint[] Resolutions = new uint[] { 256, 1024, 4096 };
+        private uint CurveResolution => Resolutions[Resolution];
 
         private void OnPropertyChanged([CallerMemberName] string name = null)
         {

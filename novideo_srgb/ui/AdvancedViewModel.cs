@@ -15,6 +15,7 @@ namespace novideo_srgb
 
         private int _target;
         private bool _keepWhite;
+        private int _resolution;
         private bool _useIcc;
         private string _profilePath;
         private bool _calibrateGamma;
@@ -33,6 +34,7 @@ namespace novideo_srgb
 
             _target = monitor.Target;
             _keepWhite = monitor.KeepWhite;
+            _resolution = monitor.Resolution;
             _useIcc = monitor.UseIcc;
             _profilePath = monitor.ProfilePath;
             _calibrateGamma = monitor.CalibrateGamma;
@@ -47,6 +49,8 @@ namespace novideo_srgb
             _monitor.Target = _target;
             ChangedCalibration |= _monitor.KeepWhite != _keepWhite;
             _monitor.KeepWhite = _keepWhite;
+            ChangedCalibration |= _monitor.Resolution != _resolution;
+            _monitor.Resolution = _resolution;
             ChangedCalibration |= _monitor.UseIcc != _useIcc;
             _monitor.UseIcc = _useIcc;
             ChangedCalibration |= _monitor.ProfilePath != _profilePath;
@@ -161,6 +165,17 @@ namespace novideo_srgb
                 OnPropertyChanged();
             }
             get => _keepWhite;
+        }
+
+        public int Resolution
+        {
+            set
+            {
+                if (value == _resolution) return;
+                _resolution = value;
+                OnPropertyChanged();
+            }
+            get => _resolution;
         }
 
         public Visibility HdrWarning => _monitor.HdrActive ? Visibility.Visible : Visibility.Collapsed;

@@ -93,7 +93,8 @@ namespace novideo_srgb
                         (double)settings.Attribute("custom_gamma"),
                         (double)settings.Attribute("custom_percentage"),
                         (int)settings.Attribute("target"),
-                        (bool?)settings.Attribute("keep_white") ?? true);
+                        (bool?)settings.Attribute("keep_white") ?? true,
+                        (int?)settings.Attribute("resolution") ?? 2);
                 }
                 else
                 {
@@ -135,7 +136,8 @@ namespace novideo_srgb
                             new XAttribute("custom_gamma", x.CustomGamma),
                             new XAttribute("custom_percentage", x.CustomPercentage),
                             new XAttribute("target", x.Target),
-                            new XAttribute("keep_white", x.KeepWhite))));
+                            new XAttribute("keep_white", x.KeepWhite),
+                            new XAttribute("resolution", x.Resolution))));
                 xElem.Save(_configPath);
             }
             catch (Exception ex)

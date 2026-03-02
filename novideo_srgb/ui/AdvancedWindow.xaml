@@ -41,6 +41,14 @@
                     </ComboBox>
                     <CheckBox IsChecked="{Binding KeepWhite}" VerticalAlignment="Center"  Margin="6,0,0,0">Keep White</CheckBox>
                 </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                    <TextBlock VerticalAlignment="Center" Text="Curve resolution" />
+                    <ComboBox SelectedIndex="{Binding Resolution}" Margin="6,0,0,0">
+                        <ComboBoxItem>256</ComboBoxItem>
+                        <ComboBoxItem>1024</ComboBoxItem>
+                        <ComboBoxItem>4096</ComboBoxItem>
+                    </ComboBox>
+                </StackPanel>
                 <RadioButton IsChecked="{Binding UseEdid}" Margin="0,0,0, 6">
                     <StackPanel IsEnabled="{Binding UseEdid}">
                         <TextBlock Text="Use EDID primaries" Margin="0,0,0,0" />
