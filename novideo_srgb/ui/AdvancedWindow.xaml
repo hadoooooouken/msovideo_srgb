@@ -26,6 +26,10 @@
     <StackPanel Margin="6,0,6,6">
         <GroupBox Header="Calibration" Padding="6">
             <StackPanel>
+                <StackPanel Margin="0,0,0,6">
+                    <TextBlock TextWrapping="Wrap" Visibility="{Binding EdidWarning}" Foreground="Red">Primaries match target – cannot clamp</TextBlock>
+                    <TextBlock TextWrapping="Wrap" Visibility="{Binding HdrWarning}" Foreground="Red">HDR or ACM is active</TextBlock>
+                </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                     <TextBlock VerticalAlignment="Center" Text="Target" />
                     <ComboBox SelectedIndex="{Binding Target}" Margin="6,0,0,0">
@@ -94,8 +98,6 @@
                                      VerticalAlignment="Center" />
                             <Label Grid.Row="2" Grid.Column="4">y</Label>
                         </Grid>
-                        <TextBlock TextWrapping="Wrap" Visibility="{Binding EdidWarning}" Foreground="Red">Primaries match target – cannot clamp</TextBlock>
-                        <TextBlock TextWrapping="Wrap" Visibility="{Binding HdrWarning}" Foreground="Red">HDR is active – cannot clamp</TextBlock>
                     </StackPanel>
                 </RadioButton>
                 <RadioButton IsChecked="{Binding UseIcc}" HorizontalContentAlignment="Stretch">

@@ -103,14 +103,22 @@ namespace novideo_srgb
         {
             if (!CanClamp) return;
 
-            if (_clamped && DisplayColorProfileManager.GetProfile(Display).Equals(MHCProfileName))
+            if (_clamped)
             {
-                DisplayColorProfileManager.RemoveAssociation(Display, MHCProfileName);
+                if (!HdrActive)
+                {
+                    if (DisplayColorProfileManager.GetProfile(Display).Equals(MHCProfileName))
+                    {
+                        DisplayColorProfileManager.RemoveAssociation(Display, MHCProfileName);
+                    }
+                }
+                else
+                {
+                    DisplayColorProfileManager.RemoveAssociation(Display, MHCProfileName);
+                }
             }
 
             if (!doClamp) return;
-
-            ICCProfileGenerator profileGenerator = new ICCProfileGenerator();
 
             if (UseEdid)
                 ColorProfileFactory.CreateProfile(MHCProfileName, Resolution, KeepWhite, EdidColorSpace, TargetColorSpace, EdidWhite, EdidGamma);
@@ -209,7 +217,9 @@ namespace novideo_srgb
             }
         }
 
-        public bool CanClamp => !HdrActive && (UseEdid && !EdidColorSpace.Equals(TargetColorSpace) || UseIcc && ProfilePath != "");
+        public string Mode => HdrActive ? "HDR/ACM " : "SDR";
+
+        public bool CanClamp => (UseEdid && !EdidColorSpace.Equals(TargetColorSpace) || UseIcc && ProfilePath != "");
 
         public bool UseEdid
         {
