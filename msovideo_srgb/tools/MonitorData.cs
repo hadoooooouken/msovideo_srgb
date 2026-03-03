@@ -60,6 +60,9 @@ namespace msovideo_srgb
             CustomGamma = 2.2;
             CustomPercentage = 100;
             Resolution = 2;
+            ProfilePathHDR = "";
+            TargetPeak = 10000;
+            BPCThreshold = 80;
         }
 
         public static EDID GetEDID(string path, Display display)
@@ -75,9 +78,10 @@ namespace msovideo_srgb
                 return null;
             }
         }
-        public MonitorData(MainViewModel viewModel, int number, Display display, string path, bool hdrActive, bool clampSdr, bool useIcc, string profilePath,
-            bool calibrateGamma,
-            int selectedGamma, double customGamma, double customPercentage, int target, bool keepWhite, int resolution) :
+        public MonitorData(MainViewModel viewModel, int number, Display display, string path, bool hdrActive, 
+            bool clampSdr, bool useIcc, string profilePath, bool calibrateGamma, int selectedGamma, double customGamma, double customPercentage, 
+            int target, bool keepWhite, int resolution,
+            bool useIccHDR, string profilePathHDR, bool calibrateGammaHDR, int peakTarget, double bpcThreshold):
             this(viewModel, number, display, path, hdrActive, clampSdr)
         {
             UseIcc = useIcc;
@@ -89,6 +93,11 @@ namespace msovideo_srgb
             Target = target;
             KeepWhite = keepWhite;
             Resolution = resolution;
+            UseIccHDR = useIccHDR;
+            ProfilePathHDR = profilePathHDR;
+            CalibrateGammaHDR = calibrateGammaHDR;
+            TargetPeak = peakTarget;
+            BPCThreshold = bpcThreshold;
         }
 
         public int Number { get; }
@@ -100,6 +109,7 @@ namespace msovideo_srgb
         public bool HdrActive { get; }
         public string MHCProfileName { get; }
         public string MHCProfileNameSDR => "[SDR] " + MHCProfileName + ".icm";
+        public string MHCProfileNameHDR => "[HDR] " + MHCProfileName + ".icm";
 
         private void UpdateClamp(bool doClamp)
         {
@@ -110,6 +120,10 @@ namespace msovideo_srgb
                 if (DisplayColorProfileManager.GetProfile(Display, false).Equals(MHCProfileNameSDR))
                 {
                     DisplayColorProfileManager.RemoveAssociation(Display, MHCProfileNameSDR, false);
+                }
+                if (DisplayColorProfileManager.GetProfile(Display, true).Equals(MHCProfileNameHDR))
+                {
+                    DisplayColorProfileManager.RemoveAssociation(Display, MHCProfileNameHDR, true);
                 }
             }
 
@@ -163,6 +177,24 @@ namespace msovideo_srgb
             }
             DisplayColorProfileManager.AddAssociation(Display, MHCProfileNameSDR, false);
             DisplayColorProfileManager.SetProfile(Display, MHCProfileNameSDR, false);
+
+            if(UseIccHDR)
+            {
+                var profile = ICCMatrixProfile.FromFile(ProfilePathHDR);
+                
+                if (CalibrateGammaHDR)
+                {
+                    var gamma = new ST2084(TargetPeak, profile.trcBlack * profile.luminance, profile.luminance, BPCThreshold);
+                    ColorProfileFactory.CreateProfile(MHCProfileNameHDR, CurveResolution, KeepWhite, profile, TargetColorSpace, new SrgbEOTF(0), gamma);
+                }
+                else
+                {
+                    ColorProfileFactory.CreateProfile(MHCProfileNameHDR, CurveResolution, KeepWhite, profile, TargetColorSpace, new SrgbEOTF(0));
+                }
+
+                DisplayColorProfileManager.AddAssociation(Display, MHCProfileNameHDR, true);
+                DisplayColorProfileManager.SetProfile(Display, MHCProfileNameHDR, true);
+            }
         }
 
         private void HandleClampException(Exception e)
@@ -238,6 +270,16 @@ namespace msovideo_srgb
         public bool KeepWhite { set; get; }
 
         public int Resolution { set; get; }
+
+        public bool UseIccHDR { set; get; }
+
+        public string ProfilePathHDR { set; get; }
+
+        public bool CalibrateGammaHDR { set; get; }
+
+        public int TargetPeak { set; get; }
+
+        public double BPCThreshold { set; get; }
 
         public Colorimetry.ColorSpace EdidColorSpace { get; }
         public Colorimetry.Point EdidWhite { get; }

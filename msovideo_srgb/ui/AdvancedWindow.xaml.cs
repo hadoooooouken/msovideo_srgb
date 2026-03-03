@@ -35,6 +35,15 @@ namespace msovideo_srgb
             }
         }
 
+        private void Browse_Click_HDR(object sender, RoutedEventArgs e)
+        {
+            var profilePath = BrowseProfiles();
+            if (!string.IsNullOrEmpty(profilePath))
+            {
+                _viewModel.ProfilePathHDR = profilePath;
+            }
+        }
+
         private void OK_Click(object sender, RoutedEventArgs e)
         {
             _viewModel.ApplyChanges();

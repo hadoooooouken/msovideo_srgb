@@ -94,7 +94,12 @@ namespace msovideo_srgb
                         (double)settings.Attribute("custom_percentage"),
                         (int)settings.Attribute("target"),
                         (bool?)settings.Attribute("keep_white") ?? true,
-                        (int?)settings.Attribute("resolution") ?? 2);
+                        (int?)settings.Attribute("resolution") ?? 2,
+                        (bool?)settings.Attribute("use_icc_hdr") ?? false,
+                        (string)settings.Attribute("icc_path_hdr") ?? "",
+                        (bool?)settings.Attribute("calibrate_gamma_hdr") ?? false,
+                        (int?)settings.Attribute("target_peak") ?? 10000,
+                        (double?)settings.Attribute("bpc_threshold") ?? 80);
                 }
                 else
                 {
@@ -137,7 +142,12 @@ namespace msovideo_srgb
                             new XAttribute("custom_percentage", x.CustomPercentage),
                             new XAttribute("target", x.Target),
                             new XAttribute("keep_white", x.KeepWhite),
-                            new XAttribute("resolution", x.Resolution))));
+                            new XAttribute("resolution", x.Resolution),
+                            new XAttribute("use_icc_hdr", x.UseIccHDR),
+                            new XAttribute("icc_path_hdr", x.ProfilePathHDR),
+                            new XAttribute("calibrate_gamma_hdr", x.CalibrateGammaHDR),
+                            new XAttribute("target_peak", x.TargetPeak),
+                            new XAttribute("bpc_threshold", x.BPCThreshold))));
                 xElem.Save(_configPath);
             }
             catch (Exception ex)

@@ -22,6 +22,11 @@ namespace msovideo_srgb
         private int _selectedGamma;
         private double _customGamma;
         private double _customPercentage;
+        private bool _useIccHDR;
+        private string _profilePathHDR;
+        private bool _calibrateGammaHDR;
+        private int _targetPeak;
+        private double _bpcThreshold;
 
         public AdvancedViewModel()
         {
@@ -41,6 +46,11 @@ namespace msovideo_srgb
             _selectedGamma = monitor.SelectedGamma;
             _customGamma = monitor.CustomGamma;
             _customPercentage = monitor.CustomPercentage;
+            _useIccHDR = monitor.UseIccHDR;
+            _profilePathHDR = monitor.ProfilePathHDR;
+            _calibrateGammaHDR = monitor.CalibrateGammaHDR;
+            _targetPeak = monitor.TargetPeak;
+            _bpcThreshold = monitor.BPCThreshold;
         }
 
         public void ApplyChanges()
@@ -63,6 +73,16 @@ namespace msovideo_srgb
             _monitor.CustomGamma = _customGamma;
             ChangedCalibration |= _monitor.CustomPercentage != _customPercentage;
             _monitor.CustomPercentage = _customPercentage;
+            ChangedCalibration |= _monitor.UseIccHDR != _useIccHDR;
+            _monitor.UseIccHDR = _useIccHDR;
+            ChangedCalibration |= _monitor.ProfilePathHDR != _profilePathHDR;
+            _monitor.ProfilePathHDR = _profilePathHDR;
+            ChangedCalibration |= _monitor.CalibrateGammaHDR != _calibrateGammaHDR;
+            _monitor.CalibrateGammaHDR = _calibrateGammaHDR;
+            ChangedCalibration |= _monitor.TargetPeak != _targetPeak;
+            _monitor.TargetPeak = TargetPeak;
+            ChangedCalibration |= _monitor.BPCThreshold != _bpcThreshold;
+            _monitor.BPCThreshold = BPCThreshold;
         }
 
         public ChromaticityCoordinates Coords => _monitor.Edid.DisplayParameters.ChromaticityCoordinates;
@@ -176,6 +196,64 @@ namespace msovideo_srgb
                 OnPropertyChanged();
             }
             get => _resolution;
+        }
+
+        public bool UseIccHDR
+        {
+            set
+            {
+                if (value == _useIccHDR) return;
+                _useIccHDR = value;
+                OnPropertyChanged();
+            }
+            get => _useIccHDR;
+        }
+
+        public string ProfilePathHDR
+        {
+            set
+            {
+                if (value == _profilePathHDR) return;
+                _profilePathHDR = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ProfileNameHDR));
+            }
+            get => _profilePathHDR;
+        }
+
+        public string ProfileNameHDR => Path.GetFileName(ProfilePathHDR);
+
+        public bool CalibrateGammaHDR
+        {
+            set
+            {
+                if (value == _calibrateGammaHDR) return;
+                _calibrateGammaHDR = value;
+                OnPropertyChanged();
+            }
+            get => _calibrateGammaHDR;
+        }
+
+        public int TargetPeak
+        {
+            set
+            {
+                if (value == _targetPeak) return;
+                _targetPeak = value;
+                OnPropertyChanged();
+            }
+            get => _targetPeak;
+        }
+
+        public double BPCThreshold
+        {
+            set
+            {
+                if (value == _bpcThreshold) return;
+                _bpcThreshold = value;
+                OnPropertyChanged();
+            }
+            get => _bpcThreshold;
         }
 
         public Visibility HdrWarning => _monitor.HdrActive ? Visibility.Visible : Visibility.Collapsed;

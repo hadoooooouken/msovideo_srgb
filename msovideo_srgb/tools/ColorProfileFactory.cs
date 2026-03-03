@@ -84,7 +84,6 @@ namespace msovideo_srgb
                 profileGenerator.AddTag("wtpt", ICCProfileGenerator.MakeXYZTag(profile.whitePoint));
             }
 
-            profileGenerator.AddTag("lumi", ICCProfileGenerator.MakeLuminanceTag(profile.luminance));
 
             AddCurve(profileGenerator, curve, resolution);
 
@@ -99,6 +98,8 @@ namespace msovideo_srgb
                 AddMatrix(profileGenerator, profile.matrix);
                 matrix = Matrix.FromDiagonal(new double[] { 1, 1, 1 });
             }
+
+            double luminance = profile.luminance;
 
             double[][] luts;
             if (gamma != null)
@@ -121,13 +122,24 @@ namespace msovideo_srgb
                         luts[i][j] = value;
                     }
                 }
+
+                Matrix newTrcLumi = Matrix.FromValues(new[,]
+                    {
+                        { gamma.SampleAt(1) },
+                        { gamma.SampleAt(1) },
+                        { gamma.SampleAt(1) }
+                    });
+
+                luminance *= (profile.matrix * newTrcLumi)[1];
             }
             else
             {
                 luts = new double[][] { new double[] { 0, 1 }, new double[] { 0, 1 }, new double[] { 0, 1 } };
             }
 
-            profileGenerator.AddTag("MHC2", ICCProfileGenerator.MakeMHC2(profile.tagBlack * profile.luminance, profile.luminance, matrix, luts));
+            profileGenerator.AddTag("lumi", ICCProfileGenerator.MakeLuminanceTag(luminance));
+
+            profileGenerator.AddTag("MHC2", ICCProfileGenerator.MakeMHC2(profile.tagBlack * profile.luminance, luminance, matrix, luts));
 
             profileGenerator.SaveAs(profileName);
         }
