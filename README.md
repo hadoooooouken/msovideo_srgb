@@ -5,9 +5,11 @@ This tool uses an ICC profile with MHC2 tag to convert colors before sending the
 
 ICC profiles are also supported and can be used in two different ways. By default, only the primary coordinates from the ICC profile will be used in place of the values reported in the EDID. This is useful if you want to use a profile created by someone else without taking their gamma/grayscale balance data into account, as that can vary a lot between units. If you enable the `Calibrate gamma to` checkbox, a full LUT-Matrix-LUT calibration will be applied. This is similar to the hardware calibration supported by some monitors and can be used to achieve great color and grayscale accuracy on well-behaved displays.
 
-The tool generates and applies an ICC profile that contains idealized display characteristics under MHC2 tag corrections. In other words, this profile describes the display as ideally matching the selected color space and gamma, allowing software that supports ICC profiles to deliver accurate and consistent results.
+Setting "Target White" can be used to achieve a desirable whitepoint (D50, D65, D93 or Custom x, y). It is useful for displays without RGB gain control and for HDR mode.
 
 For HDR mode, ICC profiles can be used to calibrate display gamma to PQ ST2084 (hard clip) and to provide measured static metadata. For more details, see the section "Notes for HDR calibration" below.
+
+The tool generates and applies an ICC profile that contains idealized display characteristics under MHC2 tag corrections. In other words, this profile describes the display as ideally matching the selected color space and gamma, allowing software that supports ICC profiles to deliver accurate and consistent results.
 
 # System requirements
 
@@ -48,12 +50,13 @@ Recomended settings:
 * In profile tab:
   * Profile type: Curves + matrix ("Black point compensation" disable)
   * Profile quality: Hight
-  * Testchart: Small testchart for matrix profiles (with a high number of neutral (grayscale) patches, such as 256)
+  * Testchart: Small testchart for matrix profiles (with a high number of neutral (grayscale) patches, such as 86 or 256)
 
 Measure targets must be displayed in HDR (not SDR via HDR) format. To achive this, you can use [dogegen](https://github.com/ledoge/dogegen):
  1. Select Display to Resolve in DisplayCAL.
- 2. Start calibration.
- 3. Run dodgen with:
+ 2. Uncheck "Override minimum display update delay" (optional)
+ 3. Start "Calibrate & profile".
+ 4. Run dodgen with:
 ```
 dogegen.exe "resolve_hdr 127.0.0.1"
 ```
@@ -61,7 +64,7 @@ dogegen.exe "resolve_hdr 127.0.0.1"
 
 Tool settings:
 * Peak target: Limits display luminance in HDR mode. Limits display luminance in HDR mode. It will be ignored if higher than the display profile luminance.
-* BPC threshold: Prevents black crush by linearly scaling `[profile black, threshold]` to `[0, threshold]`.
+* BPC threshold: Prevents black crush by linearly scaling `[0, threshold]` to `[profile black, threshold]`.
 
 In HDR mode, the target color space is treated as Native.
 
