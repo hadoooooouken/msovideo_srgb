@@ -286,21 +286,42 @@ namespace msovideo_srgb
             int result = CreateDXGIFactory1(ref factoryGuid, out IDXGIFactory1 factory);
             if (result != 0) Marshal.ThrowExceptionForHR(result);
 
-            uint adapterIndex = 0;
-            while (factory.EnumAdapters1(adapterIndex, out IDXGIAdapter1 adapter) == 0)
+            try
             {
-                adapter.GetDesc1(out DXGI_ADAPTER_DESC1 desc);
-                uint outputIndex = 0;
-                while (adapter.EnumOutputs(outputIndex, out IDXGIOutput output) == 0)
+                uint adapterIndex = 0;
+                while (factory.EnumAdapters1(adapterIndex, out IDXGIAdapter1 adapter) == 0)
                 {
-                    output.GetDesc(out DXGI_OUTPUT_DESC outputDesc);
-                    if (string.Equals(outputDesc.DeviceName, deviceName, StringComparison.OrdinalIgnoreCase))
+                    try
                     {
-                        return Tuple.Create(desc.AdapterLuid, outputIndex);
+                        adapter.GetDesc1(out DXGI_ADAPTER_DESC1 desc);
+                        uint outputIndex = 0;
+                        while (adapter.EnumOutputs(outputIndex, out IDXGIOutput output) == 0)
+                        {
+                            try
+                            {
+                                output.GetDesc(out DXGI_OUTPUT_DESC outputDesc);
+                                if (string.Equals(outputDesc.DeviceName, deviceName, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    return Tuple.Create(desc.AdapterLuid, outputIndex);
+                                }
+                            }
+                            finally
+                            {
+                                Marshal.ReleaseComObject(output);
+                            }
+                            outputIndex++;
+                        }
                     }
-                    outputIndex++;
+                    finally
+                    {
+                        Marshal.ReleaseComObject(adapter);
+                    }
+                    adapterIndex++;
                 }
-                adapterIndex++;
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(factory);
             }
 
             throw new InvalidOperationException("Display not found in DXGI enumeration.");

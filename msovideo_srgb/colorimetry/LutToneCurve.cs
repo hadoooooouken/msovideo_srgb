@@ -40,7 +40,7 @@
 
             var low = _values[lowerIndex];
             var high = _values[lowerIndex + 1];
-            var frac = (value - low) / (high - low);
+            var frac = (high != low) ? (value - low) / (high - low) : 0;
 
             return (lowerIndex + frac) / (_values.Length - 1);
         }

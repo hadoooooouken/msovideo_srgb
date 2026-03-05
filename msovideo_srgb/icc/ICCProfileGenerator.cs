@@ -34,9 +34,9 @@ namespace msovideo_srgb
             WriteUInt16BE(header, 24, 2026);    // year
             WriteUInt16BE(header, 26, 3);       // month
             WriteUInt16BE(header, 28, 1);       // day
-            WriteUInt16BE(header, 30, 1);       // hour
-            WriteUInt16BE(header, 32, 1);       // minute
-            WriteUInt16BE(header, 34, 1);       // second
+            WriteUInt16BE(header, 30, 0);       // hour
+            WriteUInt16BE(header, 32, 0);       // minute
+            WriteUInt16BE(header, 34, 0);       // second
 
             WriteAscii(header, 36, "acsp");
             WriteAscii(header, 40, "MSFT");

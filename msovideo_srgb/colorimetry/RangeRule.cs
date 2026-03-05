@@ -25,7 +25,7 @@ namespace msovideo_srgb
             try
             {
                 if (valueString.Length > 0)
-                    value = Parse(valueString.Replace(',', 'a'), CultureInfo.InvariantCulture);
+                    value = Parse(valueString.Replace(',', '.'), CultureInfo.InvariantCulture);
             }
             catch (Exception e)
             {

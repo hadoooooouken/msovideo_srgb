@@ -352,7 +352,7 @@ namespace msovideo_srgb
                     }
                 }
 
-                if (result.chromaticAdaptation != null)
+                if (result.chromaticAdaptation != null && result.whitePoint != null)
                 {
                     result.whitePoint = result.chromaticAdaptation.Inverse() * result.whitePoint;
                 }

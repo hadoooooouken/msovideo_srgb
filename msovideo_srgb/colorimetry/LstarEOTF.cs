@@ -35,7 +35,23 @@ namespace msovideo_srgb
 
         public double SampleInverseAt(double x)
         {
-            throw new NotImplementedException();
+            if (_black != 0) throw new NotSupportedException();
+            if (x >= 1) return 1;
+            if (x <= 0) return 0;
+
+            const double delta = 6.0 / 29.0;
+
+            double fy;
+            if (x > delta * delta * delta)
+            {
+                fy = Math.Pow(x, 1.0 / 3.0);
+            }
+            else
+            {
+                fy = x / (3 * delta * delta) + 4.0 / 29.0;
+            }
+
+            return 1.16 * fy - 0.16;
         }
     }
 }

@@ -110,7 +110,7 @@ namespace msovideo_srgb
             Matrix matrixCSC = Matrix.FromDiagonal(Matrix.One3x1());
             if (targetColorSpace.Equals(Colorimetry.Native))
             {
-                AddMatrix(profileGenerator, profile.matrix); 
+                AddMatrix(profileGenerator, profile.matrix);
             }
             else
             {
