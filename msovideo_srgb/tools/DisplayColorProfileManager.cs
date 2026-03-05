@@ -7,7 +7,9 @@ namespace msovideo_srgb
 {
     public static class DisplayColorProfileManager
     {
-        internal enum WcsProfileManagementScope : uint
+        internal const uint CLASS_MONITOR = 0x6D6E7472;
+
+        public enum WcsProfileManagementScope : uint
         {
             SystemWide = 0,
             CurrentUser = 1
@@ -160,6 +162,19 @@ namespace msovideo_srgb
             LUID targetAdapterID,
             uint sourceID);
 
+        [DllImport("mscms.dll")]
+        private static extern int ColorProfileGetDisplayUserScope(
+            LUID targetAdapterID,
+            uint sourceID,
+            out WcsProfileManagementScope scope
+        );
+
+        [DllImport("mscms.dll", CharSet = CharSet.Unicode)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool WcsSetUsePerUserProfiles(
+            string pDeviceName,
+            uint dwDeviceClass,
+            [MarshalAs(UnmanagedType.Bool)] bool usePerUserProfiles);
 
         public static void AddAssociation(Display display, string profileName, bool hdr)
         {
@@ -236,6 +251,33 @@ namespace msovideo_srgb
             {
                 Marshal.ThrowExceptionForHR(hr);
             }
+        }
+
+        public static WcsProfileManagementScope GetDisplayUserScope(Display display)
+        {
+            var luidAndSource = FindAdapterAndSource(display.DisplayName);
+            
+            WcsProfileManagementScope scope;
+            int hr = ColorProfileGetDisplayUserScope(
+                luidAndSource.Item1,
+                luidAndSource.Item2,
+                out scope);
+
+            if (hr != 0)
+            {
+                Marshal.ThrowExceptionForHR(hr);
+            }
+
+            return scope;
+        }
+
+        public static void SetDisplayUserScope(Display display, WcsProfileManagementScope usePerUserProfiles)
+        { 
+            WcsSetUsePerUserProfiles(
+                display.DeviceKey,
+                CLASS_MONITOR,
+                usePerUserProfiles == WcsProfileManagementScope.CurrentUser
+            );
         }
 
         private static Tuple<LUID, uint> FindAdapterAndSource(string deviceName)

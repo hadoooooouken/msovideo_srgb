@@ -119,6 +119,11 @@ namespace msovideo_srgb
 
         private void UpdateClamp(bool doClamp)
         {
+            var scope = DisplayColorProfileManager.GetDisplayUserScope(Display);
+
+            if (scope == DisplayColorProfileManager.WcsProfileManagementScope.SystemWide) {
+                DisplayColorProfileManager.SetDisplayUserScope(Display, DisplayColorProfileManager.WcsProfileManagementScope.CurrentUser);
+            }
 
             if (_clamped)
             {
