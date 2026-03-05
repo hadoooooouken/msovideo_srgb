@@ -1,6 +1,8 @@
-## [Download latest release](https://github.com/guzenco/msovideo_srgb/releases/latest/download/release.zip)
+## [Download latest release](https://github.com/hadoooooouken/msovideo_srgb/releases/download/1.0.0/release.zip)
 
 # About
+Claude Opus 4.6 bugfixes + ported from NET Framework 4.8 to NET10
+
 This tool uses an ICC profile with MHC2 tag to convert colors before sending them to a wide gamut monitor to effectively clamp it to sRGB (alternatively: Display P3, Adobe RGB or BT.2020), based on the chromaticities provided in its EDID.
 
 ICC profiles are also supported and can be used in two different ways. By default, only the primary coordinates from the ICC profile will be used in place of the values reported in the EDID. This is useful if you want to use a profile created by someone else without taking their gamma/grayscale balance data into account, as that can vary a lot between units. If you enable the `Calibrate gamma to` checkbox, a full LUT-Matrix-LUT calibration will be applied. This is similar to the hardware calibration supported by some monitors and can be used to achieve great color and grayscale accuracy on well-behaved displays.
