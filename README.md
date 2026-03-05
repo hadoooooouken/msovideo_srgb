@@ -50,7 +50,7 @@ Recomended settings:
 * In profile tab:
   * Profile type: Curves + matrix ("Black point compensation" disable)
   * Profile quality: Hight
-  * Testchart: Small testchart for matrix profiles (with a high number of neutral (grayscale) patches, such as 86 or 256)
+  * Testchart: Small testchart for matrix profiles (with a high number of neutral (grayscale) patches, such as 256)
 
 Measure targets must be displayed in HDR (not SDR via HDR) format. To achive this, you can use [dogegen](https://github.com/ledoge/dogegen):
  1. Select Display to Resolve in DisplayCAL.
