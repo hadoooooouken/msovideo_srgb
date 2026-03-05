@@ -28,6 +28,8 @@ namespace msovideo_srgb
             _viewModel = (MainViewModel)DataContext;
             SystemEvents.DisplaySettingsChanged += _viewModel.OnDisplaySettingsChanged;
             SystemEvents.PowerModeChanged += _viewModel.OnPowerModeChanged;
+            
+            TaskSchedulerHelper.EnsureCalibrationLoaderTrigger();
 
             var args = Environment.GetCommandLineArgs().ToList();
             args.RemoveAt(0);

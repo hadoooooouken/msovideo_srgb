@@ -1,4 +1,4 @@
-## [Download latest release](https://github.com/hadoooooouken/msovideo_srgb/releases/download/1.0.0/release.zip)
+## [Download latest release](https://github.com/hadoooooouken/msovideo_srgb/releases/download/1.0.2/release.zip)
 
 # About
 Claude Opus 4.6 bugfixes + ported from NET Framework 4.8 to NET10
