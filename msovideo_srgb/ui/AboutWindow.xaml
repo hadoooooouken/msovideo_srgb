@@ -14,7 +14,6 @@
             novideo_srgb v4.2 by ledoge
         </TextBlock>
         <TextBlock FontSize="15" HorizontalAlignment="Center" TextAlignment="Center" Text="{Binding Version, StringFormat='msovideo_srgb v{0} by guzenco'}"/>
-        <TextBlock FontSize="14" HorizontalAlignment="Center" TextAlignment="Center" Text="v1.0.2 by hadouken" Margin="0,5,0,0"/>
         <TextBlock HorizontalAlignment="Center" TextAlignment="Center">
             Licensed under GPLv3 <LineBreak /> <LineBreak />
             Source code and releases hosted at <LineBreak />

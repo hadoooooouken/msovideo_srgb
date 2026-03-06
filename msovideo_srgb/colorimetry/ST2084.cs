@@ -45,9 +45,20 @@ namespace msovideo_srgb
 
         public double SampleInverseAt(double x)
         {
-            double L = x * 10000;
+            double L;
 
-            double pow = Math.Pow(L / 10000, m1);
+            if (x < _bpsThreashold / _displayMaxLuminance)
+            {
+                L = (x * _displayMaxLuminance - _displayMinLuminance) / (1.0 - _displayMinLuminance / _bpsThreashold);
+            }
+            else
+            {
+                L = x * _displayMaxLuminance;
+            }
+
+            L = Math.Max(L, 0);
+
+            double pow = Math.Pow(L / 10000.0, m1);
             double res = Math.Pow((c1 + c2 * pow) / (1.0 + c3 * pow), m2);
 
             return res;

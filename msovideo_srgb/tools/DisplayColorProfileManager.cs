@@ -292,7 +292,7 @@ namespace msovideo_srgb
                 while (factory.EnumAdapters1(adapterIndex, out IDXGIAdapter1 adapter) == 0)
                 {
                     try
-                    {
+                        {
                         adapter.GetDesc1(out DXGI_ADAPTER_DESC1 desc);
                         uint outputIndex = 0;
                         while (adapter.EnumOutputs(outputIndex, out IDXGIOutput output) == 0)

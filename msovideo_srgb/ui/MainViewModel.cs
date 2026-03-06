@@ -42,7 +42,7 @@ namespace msovideo_srgb
                     return false;
                 }
 
-                if ((string)keyValue == _startupValue)
+                if (keyValue as string == _startupValue)
                 {
                     return true;
                 }
@@ -162,8 +162,7 @@ namespace msovideo_srgb
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message + "\n\nTry extracting the program elsewhere.");
-                Environment.Exit(1);
+                MessageBox.Show(ex.Message + "\n\nCould not save configuration. Try making sure the folder is writable and running the program as an administrator if needed.");
             }
         }
     }

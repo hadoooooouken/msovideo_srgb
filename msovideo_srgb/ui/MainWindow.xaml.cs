@@ -13,7 +13,7 @@ namespace msovideo_srgb
     {
         private readonly MainViewModel _viewModel;
 
-        private ContextMenuStrip _contextMenu;
+        private ContextMenu _contextMenu;
 
         public MainWindow()
         {
@@ -28,8 +28,6 @@ namespace msovideo_srgb
             _viewModel = (MainViewModel)DataContext;
             SystemEvents.DisplaySettingsChanged += _viewModel.OnDisplaySettingsChanged;
             SystemEvents.PowerModeChanged += _viewModel.OnPowerModeChanged;
-            
-            TaskSchedulerHelper.EnsureCalibrationLoaderTrigger();
 
             var args = Environment.GetCommandLineArgs().ToList();
             args.RemoveAt(0);
@@ -41,12 +39,6 @@ namespace msovideo_srgb
             }
 
             InitializeTrayIcon();
-
-            Closed += delegate
-            {
-                SystemEvents.DisplaySettingsChanged -= _viewModel.OnDisplaySettingsChanged;
-                SystemEvents.PowerModeChanged -= _viewModel.OnPowerModeChanged;
-            };
         }
 
         protected override void OnStateChanged(EventArgs e)
@@ -80,10 +72,14 @@ namespace msovideo_srgb
             void CloseWindow(object o, EventArgs e2) => window.Close();
 
             SystemEvents.DisplaySettingsChanged += CloseWindow;
-            var dialogResult = window.ShowDialog();
-            SystemEvents.DisplaySettingsChanged -= CloseWindow;
-
-            if (dialogResult == false) return;
+            try
+            {
+                if (window.ShowDialog() == false) return;
+            }
+            finally
+            {
+                SystemEvents.DisplaySettingsChanged -= CloseWindow;
+            }
 
             if (window.ChangedCalibration)
             {
@@ -113,38 +109,42 @@ namespace msovideo_srgb
                     WindowState = WindowState.Normal;
                 };
 
-            _contextMenu = new ContextMenuStrip();
+            _contextMenu = new ContextMenu();
 
-            _contextMenu.Opening += delegate { UpdateContextMenu(); };
+            _contextMenu.Popup += delegate { UpdateContextMenu(); };
 
-            notifyIcon.ContextMenuStrip = _contextMenu;
+            notifyIcon.ContextMenu = _contextMenu;
 
             Closed += delegate { notifyIcon.Dispose(); };
         }
 
         private void UpdateContextMenu()
         {
-            _contextMenu.Items.Clear();
+            foreach (MenuItem item in _contextMenu.MenuItems)
+            {
+                item.Dispose();
+            }
+            _contextMenu.MenuItems.Clear();
 
             foreach (var monitor in _viewModel.Monitors)
             {
-                var item = new ToolStripMenuItem();
-                _contextMenu.Items.Add(item);
+                var item = new MenuItem();
+                _contextMenu.MenuItems.Add(item);
                 item.Text = monitor.Name;
                 item.Checked = monitor.Clamped;
                 item.Enabled = monitor.CanClamp;
                 item.Click += (sender, args) => monitor.Clamped = !monitor.Clamped;
             }
 
-            _contextMenu.Items.Add(new ToolStripSeparator());
+            _contextMenu.MenuItems.Add("-");
 
-            var reapplyItem = new ToolStripMenuItem();
-            _contextMenu.Items.Add(reapplyItem);
+            var reapplyItem = new MenuItem();
+            _contextMenu.MenuItems.Add(reapplyItem);
             reapplyItem.Text = "Reapply";
             reapplyItem.Click += delegate { ReapplyMonitorSettings(); };
 
-            var exitItem = new ToolStripMenuItem();
-            _contextMenu.Items.Add(exitItem);
+            var exitItem = new MenuItem();
+            _contextMenu.MenuItems.Add(exitItem);
             exitItem.Text = "Exit";
             exitItem.Click += delegate { Close(); };
         }
