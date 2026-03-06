@@ -32,6 +32,25 @@ namespace msovideo_srgb
             profileGenerator.AddTag("bTRC", tagData);
         }
 
+        public static void CreateProfile(string profileName, uint resolution)
+        {
+            var profileGenerator = new ICCProfileGenerator();
+
+            AddDesc(profileGenerator, profileName);
+
+            profileGenerator.AddTag("wtpt", ICCProfileGenerator.MakeXYZTag(Colorimetry.RGBToXYZ(Colorimetry.D65)));
+            AddMatrix(profileGenerator, Colorimetry.sRGB);
+
+            ToneCurve gamaCurve = new SrgbEOTF(0);
+            AddCurve(profileGenerator, gamaCurve, resolution);
+
+            profileGenerator.AddTag("lumi", ICCProfileGenerator.MakeLuminanceTag(80));
+
+            profileGenerator.AddTag("MHC2", ICCProfileGenerator.MakeMHC2(0, 80));
+
+            profileGenerator.SaveAs(profileName);
+        }
+
         public static void CreateProfile(string profileName, uint resolution, Colorimetry.ColorSpace originColorSpace, Colorimetry.ColorSpace targetColorSpace, Colorimetry.Point white, Colorimetry.Point targetWhitePoint, bool reportD65, double gamma)
         {
             var profileGenerator = new ICCProfileGenerator();
@@ -53,6 +72,11 @@ namespace msovideo_srgb
             }
 
             Matrix reportWhite = reportD65 ? Colorimetry.RGBToXYZ(Colorimetry.D65) : targetWhite;
+
+            Matrix chromaticAdaptation = Colorimetry.WhiteToWhiteAdaptation(reportWhite, Colorimetry.D50);
+            profileGenerator.AddTag("chad", ICCProfileGenerator.MakeMatrixTag(chromaticAdaptation));
+            reportWhite = Colorimetry.D50;
+
             profileGenerator.AddTag("wtpt", ICCProfileGenerator.MakeXYZTag(reportWhite));
 
             Matrix matrixCsc = Matrix.FromDiagonal(Matrix.One3x1());
@@ -105,6 +129,11 @@ namespace msovideo_srgb
             }
 
             Matrix reportWhite = reportD65 ? Colorimetry.RGBToXYZ(Colorimetry.D65) : targetWhite;
+
+            Matrix chromaticAdaptation = Colorimetry.WhiteToWhiteAdaptation(reportWhite, Colorimetry.D50);
+            profileGenerator.AddTag("chad", ICCProfileGenerator.MakeMatrixTag(chromaticAdaptation));
+            reportWhite = Colorimetry.D50;
+
             profileGenerator.AddTag("wtpt", ICCProfileGenerator.MakeXYZTag(reportWhite));
 
             Matrix matrixCSC = Matrix.FromDiagonal(Matrix.One3x1());

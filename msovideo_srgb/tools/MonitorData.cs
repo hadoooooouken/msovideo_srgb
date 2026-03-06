@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Windows;
 using EDIDParser;
 using EDIDParser.Descriptors;
@@ -117,6 +118,21 @@ namespace msovideo_srgb
         public string MHCProfileNameSDR => "[SDR] " + MHCProfileName + ".icm";
         public string MHCProfileNameHDR => "[HDR] " + MHCProfileName + ".icm";
 
+        public const string MHCProfileNameReset = "msovideo_srgb_no_transform.icm";
+
+        private void ApplyProfile(string profileName, bool hdr)
+        {
+            ColorProfileFactory.CreateProfile(MHCProfileNameReset, CurveResolution);
+
+            DisplayColorProfileManager.AddAssociation(Display, MHCProfileNameReset, hdr);
+            DisplayColorProfileManager.SetProfile(Display, MHCProfileNameReset, hdr);
+
+            DisplayColorProfileManager.AddAssociation(Display, profileName, hdr);
+            DisplayColorProfileManager.SetProfile(Display, profileName, hdr);
+
+            DisplayColorProfileManager.RemoveAssociation(Display, MHCProfileNameReset, hdr);
+        }
+
         private void UpdateClamp(bool doClamp)
         {
             var scope = DisplayColorProfileManager.GetDisplayUserScope(Display);
@@ -138,6 +154,8 @@ namespace msovideo_srgb
             }
 
             if (!doClamp) return;
+
+            Thread.Sleep(100);
 
             bool reportD65 = HdrActive;
 
@@ -202,8 +220,8 @@ namespace msovideo_srgb
                     ColorProfileFactory.CreateProfile(MHCProfileNameSDR, CurveResolution, profile, TargetColorSpace, TargetWhitePoint, reportD65, luminance, new GammaToneCurve(EdidGamma));
                 }
             }
-            DisplayColorProfileManager.AddAssociation(Display, MHCProfileNameSDR, false);
-            DisplayColorProfileManager.SetProfile(Display, MHCProfileNameSDR, false);
+
+            ApplyProfile(MHCProfileNameSDR, false);
 
             if(UseIccHDR)
             {
@@ -244,8 +262,7 @@ namespace msovideo_srgb
                     ColorProfileFactory.CreateProfile(MHCProfileNameHDR, CurveResolution, profile, TargetColorSpace, TargetWhitePointHDR, false, luminance, new SrgbEOTF(0));
                 }
 
-                DisplayColorProfileManager.AddAssociation(Display, MHCProfileNameHDR, true);
-                DisplayColorProfileManager.SetProfile(Display, MHCProfileNameHDR, true);
+                ApplyProfile(MHCProfileNameHDR, true);
             }
         }
 

@@ -63,9 +63,10 @@ namespace msovideo_srgb
         // https://www.filmlight.ltd.uk/pdf/whitepapers/FL-TL-TN-0057-SoftwareLib.pdf
         private Matrix SampleCLUTTetrahedral(Matrix rgb)
         {
-            var lutIndex = rgb * (_lutSize - 1);
+            var clampedRgb = rgb.Map(x => Math.Max(0, Math.Min(x, 1)));
+            var lutIndex = clampedRgb * (_lutSize - 1);
             var n = lutIndex.Map(Math.Floor);
-            var f = lutIndex.Map(x => x - (int)x);
+            var f = lutIndex.Map(x => x - Math.Floor(x));
 
             Matrix Sxyz;
             if (f[0] > f[1])
