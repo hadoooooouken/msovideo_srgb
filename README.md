@@ -1,7 +1,6 @@
-## [Download latest release](https://github.com/hadoooooouken/msovideo_srgb/releases/download/1.0.2/release.zip)
+## [Download latest release](https://github.com/hadoooooouken/msovideo_srgb/releases/download/1.0.4/release.zip)
 
 # About
-Claude Opus 4.6 bugfixes + ported from NET Framework 4.8 to NET10
 
 This tool uses an ICC profile with MHC2 tag to convert colors before sending them to a wide gamut monitor to effectively clamp it to sRGB (alternatively: Display P3, Adobe RGB or BT.2020), based on the chromaticities provided in its EDID.
 
