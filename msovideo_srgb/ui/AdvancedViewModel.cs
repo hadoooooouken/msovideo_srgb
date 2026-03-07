@@ -145,7 +145,7 @@ namespace msovideo_srgb
             get => _profilePath;
         }
 
-        public string ProfileName => Path.GetFileName(ProfilePath);
+        public string ProfileName => string.IsNullOrEmpty(ProfilePath) ? "" : Path.GetFileName(ProfilePath);
 
         public bool CalibrateGamma
         {

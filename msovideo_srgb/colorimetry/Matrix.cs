@@ -210,6 +210,7 @@ namespace msovideo_srgb
             var i = this[2, 2];
 
             var denom = a * e * i - a * f * h - b * d * i + b * f * g + c * d * h - c * e * g;
+            if (Math.Abs(denom) < 1e-10) throw new InvalidOperationException("Matrix is singular and cannot be inverted.");
             return 1 / denom * FromValues(new[,]
             {
                 { e * i - f * h, -b * i + c * h, b * f - c * e },

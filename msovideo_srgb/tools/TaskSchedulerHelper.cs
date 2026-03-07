@@ -14,8 +14,8 @@ namespace msovideo_srgb
             {
                 string taskName = @"\Microsoft\Windows\WindowsColorSystem\Calibration Loader";
 
-                // Export current task XML
-                var exportProcess = new Process
+                string xmlContent;
+                using (var exportProcess = new Process
                 {
                     StartInfo = new ProcessStartInfo
                     {
@@ -26,16 +26,17 @@ namespace msovideo_srgb
                         UseShellExecute = false,
                         CreateNoWindow = true
                     }
-                };
-
-                exportProcess.Start();
-                string xmlContent = exportProcess.StandardOutput.ReadToEnd();
-                exportProcess.WaitForExit();
-
-                if (exportProcess.ExitCode != 0 || string.IsNullOrWhiteSpace(xmlContent))
+                })
                 {
-                    // Failed to export task, maybe task doesn't exist
-                    return;
+                    exportProcess.Start();
+                    xmlContent = exportProcess.StandardOutput.ReadToEnd();
+                    exportProcess.WaitForExit();
+
+                    if (exportProcess.ExitCode != 0 || string.IsNullOrWhiteSpace(xmlContent))
+                    {
+                        // Failed to export task, maybe task doesn't exist
+                        return;
+                    }
                 }
 
                 // Parse XML
@@ -72,7 +73,7 @@ namespace msovideo_srgb
                     doc.Save(tempXmlFile);
 
                     // Import the new XML with elevation
-                    var importProcess = new Process
+                    using (var importProcess = new Process
                     {
                         StartInfo = new ProcessStartInfo
                         {
@@ -81,22 +82,23 @@ namespace msovideo_srgb
                             UseShellExecute = true,
                             Verb = "runas" // Request elevation
                         }
-                    };
-
-                    try
+                    })
                     {
-                        importProcess.Start();
-                        importProcess.WaitForExit();
-                    }
-                    catch (System.ComponentModel.Win32Exception)
-                    {
-                        // User cancelled UAC prompt
-                    }
-                    finally
-                    {
-                        if (File.Exists(tempXmlFile))
+                        try
                         {
-                            File.Delete(tempXmlFile);
+                            importProcess.Start();
+                            importProcess.WaitForExit();
+                        }
+                        catch (System.ComponentModel.Win32Exception)
+                        {
+                            // User cancelled UAC prompt
+                        }
+                        finally
+                        {
+                            if (File.Exists(tempXmlFile))
+                            {
+                                File.Delete(tempXmlFile);
+                            }
                         }
                     }
                 }

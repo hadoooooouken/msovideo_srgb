@@ -157,7 +157,7 @@ namespace msovideo_srgb
                 for (int i = 0; i < 3; i++)
                 {
                     luts[i] = new double[resolution];
-                    for (int j = 1; j < resolution; j++)
+                    for (int j = 0; j < resolution; j++)
                     {
                         double value = gamma.SampleAt(j / (resolution - 1.0));
 

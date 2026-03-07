@@ -27,7 +27,7 @@ namespace msovideo_srgb
 
             Edid = GetEDID(path, display);
 
-            Name = Edid.Descriptors.OfType<StringDescriptor>()
+            Name = Edid?.Descriptors.OfType<StringDescriptor>()
                 .FirstOrDefault(x => x.Type == StringDescriptorType.MonitorName)?.Value ?? "<no name>";
 
             Display = display;

@@ -14,6 +14,7 @@ namespace msovideo_srgb
         private readonly MainViewModel _viewModel;
 
         private ContextMenu _contextMenu;
+        private NotifyIcon _notifyIcon;
 
         public MainWindow()
         {
@@ -95,14 +96,14 @@ namespace msovideo_srgb
 
         private void InitializeTrayIcon()
         {
-            var notifyIcon = new NotifyIcon
+            _notifyIcon = new NotifyIcon
             {
                 Text = "Msovideo sRGB",
                 Icon = Properties.Resources.icon,
                 Visible = true
             };
 
-            notifyIcon.MouseDoubleClick +=
+            _notifyIcon.MouseDoubleClick +=
                 delegate
                 {
                     Show();
@@ -113,18 +114,21 @@ namespace msovideo_srgb
 
             _contextMenu.Popup += delegate { UpdateContextMenu(); };
 
-            notifyIcon.ContextMenu = _contextMenu;
+            _notifyIcon.ContextMenu = _contextMenu;
+        }
 
-            Closed += delegate { notifyIcon.Dispose(); };
+        protected override void OnClosed(EventArgs e)
+        {
+            _notifyIcon?.Dispose();
+            base.OnClosed(e);
         }
 
         private void UpdateContextMenu()
         {
-            foreach (MenuItem item in _contextMenu.MenuItems)
+            while (_contextMenu.MenuItems.Count > 0)
             {
-                item.Dispose();
+                _contextMenu.MenuItems[0].Dispose();
             }
-            _contextMenu.MenuItems.Clear();
 
             foreach (var monitor in _viewModel.Monitors)
             {

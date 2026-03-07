@@ -30,7 +30,7 @@ namespace msovideo_srgb
 
             L = Math.Min(L, _maxLuminance);
 
-            if (L < _bpsThreashold)
+            if (_bpsThreashold > 0 && L < _bpsThreashold)
             {
                 L = (_displayMinLuminance / _displayMaxLuminance) * (1.0 - L / _bpsThreashold)  + L / _displayMaxLuminance;
             }
@@ -47,7 +47,7 @@ namespace msovideo_srgb
         {
             double L;
 
-            if (x < _bpsThreashold / _displayMaxLuminance)
+            if (_bpsThreashold > 0 && x < _bpsThreashold / _displayMaxLuminance)
             {
                 L = (x * _displayMaxLuminance - _displayMinLuminance) / (1.0 - _displayMinLuminance / _bpsThreashold);
             }
