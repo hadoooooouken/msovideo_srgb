@@ -47,28 +47,53 @@ namespace msovideo_srgb
                 if (triggersNode == null) return;
 
                 bool hasTrigger507 = false;
+                bool hasTrigger506 = false;
 
-                // Check specifically for our Kernel-Power 507 trigger content
+                // Check specifically for our Kernel-Power 507 and 506 trigger content
                 foreach (var eventTrigger in triggersNode.Elements(ns + "EventTrigger"))
                 {
                     var subscription = eventTrigger.Element(ns + "Subscription")?.Value;
-                    if (subscription != null && subscription.Contains("Microsoft-Windows-Kernel-Power") && subscription.Contains("EventID=507"))
+                    if (subscription != null && subscription.Contains("Microsoft-Windows-Kernel-Power"))
                     {
-                        hasTrigger507 = true;
-                        break;
+                        if (subscription.Contains("EventID=507"))
+                        {
+                            hasTrigger507 = true;
+                        }
+                        else if (subscription.Contains("EventID=506"))
+                        {
+                            hasTrigger506 = true;
+                        }
                     }
                 }
 
+                bool modified = false;
+
                 if (!hasTrigger507)
                 {
-                    // Inject the trigger
+                    // Inject the 507 trigger
                     var newTrigger = new XElement(ns + "EventTrigger",
                         new XElement(ns + "Enabled", "true"),
                         new XElement(ns + "Subscription", "<QueryList><Query Id=\"0\" Path=\"System\"><Select Path=\"System\">*[System[Provider[@Name='Microsoft-Windows-Kernel-Power'] and EventID=507]]</Select></Query></QueryList>")
                     );
 
                     triggersNode.Add(newTrigger);
+                    modified = true;
+                }
 
+                if (!hasTrigger506)
+                {
+                    // Inject the 506 trigger
+                    var newTrigger = new XElement(ns + "EventTrigger",
+                        new XElement(ns + "Enabled", "true"),
+                        new XElement(ns + "Subscription", "<QueryList><Query Id=\"0\" Path=\"System\"><Select Path=\"System\">*[System[Provider[@Name='Microsoft-Windows-Kernel-Power'] and EventID=506]]</Select></Query></QueryList>")
+                    );
+
+                    triggersNode.Add(newTrigger);
+                    modified = true;
+                }
+
+                if (modified)
+                {
                     string tempXmlFile = Path.Combine(Path.GetTempPath(), "msovideo_srgb_calibration_loader.xml");
                     doc.Save(tempXmlFile);
 

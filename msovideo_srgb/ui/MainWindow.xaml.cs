@@ -2,8 +2,10 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Interop;
 using Application = System.Windows.Application;
 using MessageBox = System.Windows.Forms.MessageBox;
 
@@ -11,10 +13,32 @@ namespace msovideo_srgb
 {
     public partial class MainWindow
     {
+        private static readonly Guid GUID_CONSOLE_DISPLAY_STATE =
+            new Guid("6FE69556-704A-47A0-8F24-C28D936FDA47");
+
+        private const int WM_POWERBROADCAST = 0x0218;
+        private const int PBT_POWERSETTINGCHANGE = 0x8013;
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern IntPtr RegisterPowerSettingNotification(
+            IntPtr hRecipient, ref Guid PowerSettingGuid, int Flags);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool UnregisterPowerSettingNotification(IntPtr Handle);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct POWERBROADCAST_SETTING
+        {
+            public Guid PowerSetting;
+            public uint DataLength;
+            public byte Data;
+        }
+
         private readonly MainViewModel _viewModel;
 
         private ContextMenu _contextMenu;
         private NotifyIcon _notifyIcon;
+        private IntPtr _powerNotificationHandle;
 
         public MainWindow()
         {
@@ -29,6 +53,7 @@ namespace msovideo_srgb
             _viewModel = (MainViewModel)DataContext;
             SystemEvents.DisplaySettingsChanged += _viewModel.OnDisplaySettingsChanged;
             SystemEvents.PowerModeChanged += _viewModel.OnPowerModeChanged;
+            SystemEvents.SessionSwitch += _viewModel.OnSessionSwitch;
 
             var args = Environment.GetCommandLineArgs().ToList();
             args.RemoveAt(0);
@@ -40,6 +65,33 @@ namespace msovideo_srgb
             }
 
             InitializeTrayIcon();
+        }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            var hwndSource = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+            hwndSource?.AddHook(WndProc);
+
+            var guid = GUID_CONSOLE_DISPLAY_STATE;
+            _powerNotificationHandle = RegisterPowerSettingNotification(
+                new WindowInteropHelper(this).Handle, ref guid, 0);
+        }
+
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            if (msg == WM_POWERBROADCAST && (int)wParam == PBT_POWERSETTINGCHANGE)
+            {
+                var setting = Marshal.PtrToStructure<POWERBROADCAST_SETTING>(lParam);
+                if (setting.PowerSetting == GUID_CONSOLE_DISPLAY_STATE && setting.Data == 1)
+                {
+                    // Display turned on — reapply calibration
+                    ReapplyMonitorSettings();
+                }
+            }
+
+            return IntPtr.Zero;
         }
 
         protected override void OnStateChanged(EventArgs e)
@@ -119,6 +171,22 @@ namespace msovideo_srgb
 
         protected override void OnClosed(EventArgs e)
         {
+            try
+            {
+                if (_powerNotificationHandle != IntPtr.Zero)
+                {
+                    UnregisterPowerSettingNotification(_powerNotificationHandle);
+                }
+
+                var hwndSource = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+                hwndSource?.RemoveHook(WndProc);
+            }
+            catch { }
+
+            SystemEvents.DisplaySettingsChanged -= _viewModel.OnDisplaySettingsChanged;
+            SystemEvents.PowerModeChanged -= _viewModel.OnPowerModeChanged;
+            SystemEvents.SessionSwitch -= _viewModel.OnSessionSwitch;
+
             _notifyIcon?.Dispose();
             base.OnClosed(e);
         }

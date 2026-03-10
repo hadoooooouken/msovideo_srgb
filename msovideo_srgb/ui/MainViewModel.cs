@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -12,6 +13,7 @@ namespace msovideo_srgb
     {
         public ObservableCollection<MonitorData> Monitors { get; }
 
+        private static int _stateId = 0;
         private string _configPath;
 
         private string _startupName;
@@ -131,13 +133,26 @@ namespace msovideo_srgb
 
         public void OnDisplaySettingsChanged(object sender, EventArgs e)
         {
-            UpdateMonitors();
+            int currentId = ++_stateId;
+            Thread.Sleep(100);
+            if (_stateId == currentId)
+            {
+                UpdateMonitors();
+            }
         }
 
         public void OnPowerModeChanged(object sender, PowerModeChangedEventArgs e)
         {
             if (e.Mode != PowerModes.Resume) return;
             OnDisplaySettingsChanged(null, null);
+        }
+
+        public void OnSessionSwitch(object sender, SessionSwitchEventArgs e)
+        {
+            if (e.Reason == SessionSwitchReason.SessionUnlock)
+            {
+                OnDisplaySettingsChanged(null, null);
+            }
         }
 
         public void SaveConfig()

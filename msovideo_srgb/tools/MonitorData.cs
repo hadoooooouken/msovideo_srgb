@@ -243,19 +243,11 @@ namespace msovideo_srgb
 
                 if (CalibrateGammaHDR)
                 {
-                    
-                    var gamma = new ST2084(TargetPeak, profile.trcBlack * profile.luminance, luminance, BPCThreshold);
+                    var gamma = new ST2084(TargetPeak, profile.trcBlack * TargetPeak, TargetPeak, BPCThreshold);
 
-                    Matrix newTrcLumi = Matrix.FromValues(new[,]
-                    {
-                        { gamma.SampleAt(1) },
-                        { gamma.SampleAt(1) },
-                        { gamma.SampleAt(1) }
-                    });
+                    luminance = TargetPeak;
 
-                    luminance *= (profile.matrix * newTrcLumi)[1];
-
-                    ColorProfileFactory.CreateProfile(MHCProfileNameHDR, CurveResolution, profile, TargetColorSpace, TargetWhitePointHDR, false, luminance, new SrgbEOTF(0), gamma);
+                    ColorProfileFactory.CreateProfile(MHCProfileNameHDR, CurveResolution, profile, TargetColorSpace, TargetWhitePointHDR, false, luminance, new GammaToneCurve(1.0), gamma);
                 }
                 else
                 {

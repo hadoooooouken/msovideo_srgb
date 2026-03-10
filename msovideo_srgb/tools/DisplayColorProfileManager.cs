@@ -288,35 +288,65 @@ namespace msovideo_srgb
 
             try
             {
-                uint adapterIndex = 0;
-                while (factory.EnumAdapters1(adapterIndex, out IDXGIAdapter1 adapter) == 0)
+                // Fast path: parse output index from device name (e.g. \\.\DISPLAY1 -> 0)
+                const string prefix = @"\\.\DISPLAY";
+                if (deviceName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
+                    && uint.TryParse(deviceName.Substring(prefix.Length), out uint parsedIndex)
+                    && parsedIndex > 0)
                 {
-                    try
+                    uint sourceIndex = parsedIndex - 1;
+                    uint adapterIndex = 0;
+                    while (factory.EnumAdapters1(adapterIndex, out IDXGIAdapter1 adapter) == 0)
+                    {
+                        try
                         {
-                        adapter.GetDesc1(out DXGI_ADAPTER_DESC1 desc);
-                        uint outputIndex = 0;
-                        while (adapter.EnumOutputs(outputIndex, out IDXGIOutput output) == 0)
-                        {
-                            try
-                            {
-                                output.GetDesc(out DXGI_OUTPUT_DESC outputDesc);
-                                if (string.Equals(outputDesc.DeviceName, deviceName, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    return Tuple.Create(desc.AdapterLuid, outputIndex);
-                                }
-                            }
-                            finally
+                            adapter.GetDesc1(out DXGI_ADAPTER_DESC1 desc);
+                            if (adapter.EnumOutputs(sourceIndex, out IDXGIOutput output) == 0)
                             {
                                 Marshal.ReleaseComObject(output);
+                                return Tuple.Create(desc.AdapterLuid, sourceIndex);
                             }
-                            outputIndex++;
                         }
+                        finally
+                        {
+                            Marshal.ReleaseComObject(adapter);
+                        }
+                        adapterIndex++;
                     }
-                    finally
+                }
+
+                // Fallback: full DXGI enumeration by matching device name
+                {
+                    uint adapterIndex = 0;
+                    while (factory.EnumAdapters1(adapterIndex, out IDXGIAdapter1 adapter) == 0)
                     {
-                        Marshal.ReleaseComObject(adapter);
+                        try
+                        {
+                            adapter.GetDesc1(out DXGI_ADAPTER_DESC1 desc);
+                            uint outputIndex = 0;
+                            while (adapter.EnumOutputs(outputIndex, out IDXGIOutput output) == 0)
+                            {
+                                try
+                                {
+                                    output.GetDesc(out DXGI_OUTPUT_DESC outputDesc);
+                                    if (string.Equals(outputDesc.DeviceName, deviceName, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        return Tuple.Create(desc.AdapterLuid, outputIndex);
+                                    }
+                                }
+                                finally
+                                {
+                                    Marshal.ReleaseComObject(output);
+                                }
+                                outputIndex++;
+                            }
+                        }
+                        finally
+                        {
+                            Marshal.ReleaseComObject(adapter);
+                        }
+                        adapterIndex++;
                     }
-                    adapterIndex++;
                 }
             }
             finally
