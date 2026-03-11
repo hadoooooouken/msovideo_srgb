@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -106,6 +106,9 @@ namespace msovideo_srgb
                         (int?)settings.Attribute("target_white") ?? 0,
                         (double?)settings.Attribute("custom_white_x") ?? Colorimetry.D65.X,
                         (double?)settings.Attribute("custom_white_y") ?? Colorimetry.D65.Y,
+                        (bool?)settings.Attribute("report_white_d65") ?? false,
+                        (bool?)settings.Attribute("report_color_space_srgb") ?? false,
+                        (bool?)settings.Attribute("report_gamma_srgb") ?? false,
                         (int?)settings.Attribute("target") ?? 0,
                         (int?)settings.Attribute("resolution") ?? 2,
                         (bool?)settings.Attribute("use_icc_hdr") ?? false,
@@ -179,6 +182,9 @@ namespace msovideo_srgb
                             new XAttribute("target_white", m.TargetWhite),
                             new XAttribute("custom_white_x", m.CustomWhiteX),
                             new XAttribute("custom_white_y", m.CustomWhiteY),
+                            new XAttribute("report_white_d65", m.ReportWhiteD65),
+                            new XAttribute("report_color_space_srgb", m.ReportColorSpaceSRGB),
+                            new XAttribute("report_gamma_srgb", m.ReportGammaSRGB),
                             new XAttribute("target", m.Target),
                             new XAttribute("resolution", m.Resolution),
                             new XAttribute("use_icc_hdr", m.UseIccHDR),
