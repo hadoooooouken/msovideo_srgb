@@ -1,4 +1,6 @@
-## [Download latest release](https://github.com/hadoooooouken/msovideo_srgb/releases/download/1.0.4/release.zip)
+## Original: https://github.com/guzenco/msovideo_srgb
+
+## [Download latest release](https://github.com/hadoooooouken/msovideo_srgb/releases/download/1.0.5/release.zip)
 
 # About
 
